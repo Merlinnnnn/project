@@ -110,6 +110,7 @@ function App() {
             <div className="space-y-3">
               {ungroupedTasks.map(task => {
                 const subtasks = tasks.filter(t => t.parentId === task.id);
+                const getSubtasks = (parentId: string) => tasks.filter(t => t.parentId === parentId);
                 return (
                   <TaskItem
                     key={task.id}
@@ -120,6 +121,7 @@ function App() {
                     onDelete={deleteTask}
                     onAddSubtask={handleAddSubtask}
                     onToggleExpand={handleToggleTaskExpand}
+                    getSubtasks={getSubtasks}
                     theme={settings.theme}
                   />
                 );

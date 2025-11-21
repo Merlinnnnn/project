@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Task } from '../types';
+import { Task, Theme } from '../types';
 import { Play, Pause, Check, Trash2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { formatTime } from '../utils/time';
 import { SubtaskInput } from './SubtaskInput';
@@ -12,7 +12,8 @@ interface TaskItemProps {
   onDelete: (id: string) => void;
   onAddSubtask: (parentId: string, title: string) => void;
   onToggleExpand: (id: string) => void;
-  theme: any;
+  getSubtasks?: (parentId: string) => Task[];
+  theme: Theme;
 }
 
 export const TaskItem = ({
@@ -23,9 +24,11 @@ export const TaskItem = ({
   onDelete,
   onAddSubtask,
   onToggleExpand,
+  getSubtasks,
   theme,
 }: TaskItemProps) => {
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
+  const childSubtasks = getSubtasks ? getSubtasks(task.id) : subtasks;
   const currentTime = task.isRunning && task.lastStartTime
     ? task.timeSpent + Math.floor((Date.now() - task.lastStartTime) / 1000)
     : task.timeSpent;
@@ -33,6 +36,9 @@ export const TaskItem = ({
   const handleAddSubtask = (title: string) => {
     onAddSubtask(task.id, title);
     setIsAddingSubtask(false);
+    if (!task.expanded) {
+      onToggleExpand(task.id);
+    }
   };
 
   return (
@@ -48,7 +54,7 @@ export const TaskItem = ({
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            {subtasks.length > 0 && (
+            {childSubtasks.length > 0 && (
               <button
                 onClick={() => onToggleExpand(task.id)}
                 className="p-1 rounded transition-colors"
@@ -133,21 +139,22 @@ export const TaskItem = ({
         </div>
       )}
 
-      {task.expanded && subtasks.length > 0 && (
+      {task.expanded && childSubtasks.length > 0 && (
         <div
           className="ml-6 pl-4 space-y-2 border-l-2"
           style={{ borderColor: theme.border }}
         >
-          {subtasks.map(subtask => (
+          {childSubtasks.map(subtask => (
             <TaskItem
               key={subtask.id}
               task={subtask}
-              subtasks={[]}
+              subtasks={getSubtasks ? getSubtasks(subtask.id) : []}
               onToggleTimer={onToggleTimer}
               onToggleComplete={onToggleComplete}
               onDelete={onDelete}
               onAddSubtask={onAddSubtask}
               onToggleExpand={onToggleExpand}
+              getSubtasks={getSubtasks}
               theme={theme}
             />
           ))}

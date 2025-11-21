@@ -1,4 +1,4 @@
-import { TaskGroup, Task } from '../types';
+import { TaskGroup, Task, Theme } from '../types';
 import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { TaskItem } from './TaskItem';
 
@@ -10,9 +10,9 @@ interface GroupSectionProps {
   onToggleTimer: (id: string) => void;
   onToggleComplete: (id: string) => void;
   onDeleteTask: (id: string) => void;
-  onAddSubtask: (parentId: string) => void;
+  onAddSubtask: (parentId: string, title: string) => void;
   onToggleTaskExpand: (id: string) => void;
-  theme: any;
+  theme: Theme;
 }
 
 export const GroupSection = ({
@@ -28,6 +28,7 @@ export const GroupSection = ({
   theme,
 }: GroupSectionProps) => {
   const topLevelTasks = tasks.filter(t => !t.parentId);
+  const getSubtasks = (parentId: string) => tasks.filter(t => t.parentId === parentId);
 
   return (
     <div className="mb-6">
@@ -67,6 +68,7 @@ export const GroupSection = ({
                 onDelete={onDeleteTask}
                 onAddSubtask={onAddSubtask}
                 onToggleExpand={onToggleTaskExpand}
+                getSubtasks={getSubtasks}
                 theme={theme}
               />
             );
